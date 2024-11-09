@@ -1,0 +1,24 @@
+[
+    {
+        "title": "Název článku 1",
+        "isVisible": true,
+        "keywords": [
+            "React",
+            "Frontend",
+            "JavaScript"
+        ],
+        "image": "https://example.com/image1.jpg",
+        "content": "Toto je obsah článku číslo 1."
+    },
+    {
+        "title": "Název článku 2",
+        "isVisible": true,
+        "keywords": [
+            "Backend",
+            "Node.js",
+            "API"
+        ],
+        "image": "https://example.com/image2.jpg",
+        "content": "Toto je obsah článku číslo 2."
+    }
+]
