@@ -1,6 +1,14 @@
-
-body {
+#root {
+  position: relative;
+  background-color: rgb(54, 54, 54);
   margin: 0;
+  padding: 0;
+  width: 100vw;
+  min-height: 100vh;
+  /* Full viewport height */
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
@@ -8,7 +16,144 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body {
+  border-radius: 10px;
+  margin: 0 auto;
+  overflow-x: hidden;
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+form {
+  color: white;
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+  background-color: #20b1ff;
+  padding: 20px;
+  border-radius: 10px;
+  width: 80vw;
+  margin: 0 auto;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 1);
+}
+
+/* Title section */
+input,
+textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 5px;
+  font-size: 16px;
+}
+
+/* Input fields */
+input[type="text"],
+textarea {
+  background-color: #e0e0e0;
+  border: none;
+  color: #333;
+}
+
+/* Container for title and content fields */
+div.input-container {
+  margin-bottom: 20px;
+}
+
+/*.article-content input {
+  height: 500px;
+}*/
+
+h3 {
+  color: #fff;
+  font-size: 18px;
+  margin: 10px 0;
+  text-transform: uppercase;
+}
+
+/* Button styles */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  /* Pushes buttons to opposite sides */
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+
+
+/* Cancel button on the left */
+button.cancel-post-button {
+  background-color: #dc3545;
+  color: white;
+  width: 8vw;
+  max-height: 70px;
+  max-width: 70px;
+  aspect-ratio: 1 / 1;
+  border-radius: 5px;
+  border: none;
+  font-size: 30px;
+  cursor: pointer;
+  width: 100px;
+}
+
+/* Visibility button and Upload button on the right */
+div.controls-buttons {
+  display: flex;
+  flex-direction: column;
+  /* Stack the buttons vertically */
+  align-items: flex-end;
+  /* Align buttons to the right */
+}
+
+button.post-button {
+  background-color: #28a745;
+  /* Green for Upload button */
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100px;
+  margin-bottom: 10px;
+  /* Add space between buttons */
+}
+
+.visibility-container {
+  display: flex;
+  align-items: center;
+}
+
+.visibility-text {
+  margin-right: 10px;
+}
+
+button.visibility-button {
+  background-color: #28a745;
+  /* Green for Visibility button */
+  color: white;
+  padding: 5px 15px;
+  border-radius: 5px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  width: 100px;
+}
+
+/* Styles for visibility button when toggled */
+button.visibility-button.hidden {
+  background-color: #dc3545;
+  /* Red for No visibility */
+}
+
+button.visibility-button:hover {
+  background-color: #218838;
+  /* Darker green on hover for 'Yes' */
+}
+
+button.visibility-button.hidden:hover {
+  background-color: #c82333;
+  /* Darker red on hover for 'No' */
 }

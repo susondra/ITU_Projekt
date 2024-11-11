@@ -1,0 +1,117 @@
+/* Ensure full-width container */
+.article-container {
+    background-color: #0066cc;
+    /* Blue background */
+    color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+}
+
+/* Header with date, author, title */
+.article-header {
+    margin-bottom: 20px;
+    display: flex;
+    /* Align elements horizontally */
+    justify-content: space-between;
+}
+
+/* First Column (stacked items: date, author, title, keywords) */
+.article-header .article-date,
+.article-header .article-author,
+.article-header h2,
+.article-header .article-keywords {
+    margin-bottom: 10px;
+}
+
+/* Date and Author styling */
+.article-date {
+    font-size: 14px;
+    font-style: italic;
+}
+
+.article-author {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.article-header h2 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+/* Styling for hashtags */
+.article-keywords {
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.hashtag {
+    margin-right: 5px;
+    color: #fff;
+    background-color: #007BFF;
+    /* Blue background for hashtags */
+    padding: 2px 8px;
+    border-radius: 15px;
+}
+
+/* Styling for image */
+.article-image {
+    position: relative;
+    right: 0;
+    max-height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+/* Adjust content styling */
+.article-content {
+    margin-top: 15px;
+    font-size: 16px;
+}
+
+.icon-button {
+    background: none;
+    /* Make the background transparent */
+    border: none;
+    /* Remove border */
+    font-size: 24px;
+    /* Set the icon size */
+    color: white;
+    /* Set the icon color */
+    cursor: pointer;
+    /* Make it clickable */
+    position: absolute;
+    /* Position relative to the parent container */
+    top: 10px;
+    /* Position the icons near the top */
+    z-index: 10;
+    opacity: 0.8;
+    /* Slightly transparent by default */
+}
+
+/* Settings Icon aligned to the left */
+.settings {
+    left: 10px;
+    /* Position settings icon to the left */
+}
+
+/* Close Icon aligned to the right */
+.close {
+    color: #f00;
+    right: 10px;
+    /* Position close icon to the right */
+}
+
+/* Hover effect for icons */
+.icon-button:hover {
+    opacity: 1;
+    /* Full opacity when hovered */
+}
+
+/* For the image container */
+.position-relative {
+    position: relative;
+    /* Allow absolute positioning of icons inside this container */
+}

@@ -1,35 +1,35 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-import NewsComponent from './NewsComponent';
+import './index.css';
+import './app.css';
+import React, { useState } from 'react';
 import ArticleList from './ArticleList';  // Importujeme komponentu pro seznam článků
+import { Link } from 'react-router-dom';  // Import Link from react-router-dom
 
 
 function App() {
+    const [activeAuthor, setActiveAuthor] = useState('Red Angle');
+
+    const handleAuthorChange = (e) => {
+        setActiveAuthor(e.target.value);
+    };
     return (
-        <div className="App">
+        <div className="body">
             <header className="App-header">
-                <h1 className="App-title">FreshNews</h1>  {/* Název stránky */}
-                <button className="Add-article-button">Tlačítko</button>  {/* Tlačítko vpravo */}
-                <button>Tlacitko</button>
+                <div className='App-header-title'>
+                    <select onChange={handleAuthorChange} value={activeAuthor}>
+                        <option value="Red Angle">Red Angle</option>
+                        <option value="Daily.News">Daily.News</option>
+                    </select>
+                    <h1 className="App-title">FreshNews</h1>  {/* Název stránky */}
+                    <Link to="/add"><button className="Add-article-button">New Post</button>
+                    </Link>
+                </div>
+                <div className='App-header-text'>
+                    <h1>My Articles</h1>
+                </div>
             </header>
             <main>
-                <ArticleList />
+                <ArticleList activeAuthor={activeAuthor} />
             </main>
-            <footer className="App-footer">
-                <img src={logo} className="App-logo" alt="logo" />
-                <p>
-                    Edit <code>src/App.js</code> and save to reload.
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </a>
-            </footer>
         </div>
     );
 }
