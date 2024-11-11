@@ -11,7 +11,7 @@ function Add() {
         title: '',
         content: '',
         visibility: true,
-        keywords: "",
+        keywords: '',
     });
 
     const toggleVisibility = () => {
@@ -32,12 +32,17 @@ function Add() {
     const handleSubmit = (e) => {
         e.preventDefault();  // Prevent default form submission
 
+        const updatedFormData = {
+            ...formData,
+            keywords: formData.keywords.split(/[\s,]+/).map(keyword => keyword.trim()) // Split and trim each keyword
+        };
+
         fetch('http://localhost:5000/api/add', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(formData),  // Send form data as JSON
+            body: JSON.stringify(updatedFormData),  // Send form data as JSON
         })
             .then((response) => {
                 if (response.ok) {
