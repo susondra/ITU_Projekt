@@ -25,19 +25,49 @@ const ArticleList = ({ activeAuthor }) => {
         fetchArticles();
     }, [fetchArticles]);
 
-    const handleSettings = async (id) => {
+    const handleInputChange = (id, field, value) => {
+        setArticles((prevArticles) =>
+            prevArticles.map((article) =>
+                article.id === id ? { ...article, [field]: value } : article
+            )
+        );
+    };
+
+    const handleUpdateArticle = async (articleId, updatedData) => {
         try {
-            const updatedSettings = { /* settings data */ };
-            const response = await axios.edit(`http://localhost:5000/api/articles/settings/${id}`, updatedSettings);
-            console.log(response.data);
-            fetchArticles();
+            const response = await axios.put(`http://localhost:5000/api/articles/${articleId}`, updatedData);
+            console.log("Článek aktualizován:", response.data);
+
+            // Aktualizujte lokální stav článků (přepište pouze aktualizovaný článek)
+            setArticles((prevArticles) =>
+                prevArticles.map((article) =>
+                    article.id === articleId ? response.data.article : article
+                )
+            );
         } catch (error) {
-            console.error("Error updating settings", error);
-            fetchArticles();
+            console.error("Chyba při aktualizaci článku:", error);
         }
     };
 
-    // Function to handle close (delete) click and make the API call to remove the article
+    const handleVisibilityToggle = (id) => {
+        setArticles((prevArticles) =>
+            prevArticles.map((article) =>
+                article.id === id ? { ...article, visibility: !article.visibility } : article
+            )
+        );
+    };
+
+    const handleSettings = async (id) => {
+        try {
+            const response = await axios.patch(`http://localhost:5000/api/articles/${id}/isEditing`);
+            console.log('Stav isEditing aktualizován:', response.data);
+            fetchArticles(); // Načíst články znovu, abychom zobrazili změny
+        } catch (error) {
+            console.error("Chyba při změně isEditing", error);
+        }
+    };
+
+
     const handleDelete = async (id) => {
         try {
             const response = await axios.delete(`http://localhost:5000/api/articles/delete/${id}`);
@@ -49,57 +79,142 @@ const ArticleList = ({ activeAuthor }) => {
         }
     };
 
+    const handleCancelEdit = async (id) => {
+        try {
+            const response = await axios.get(`http://localhost:5000/api/articles/cancelEdit/${id}`);
+            setArticles((prevArticles) =>
+                prevArticles.map((article) =>
+                    article.id === id
+                        ? { ...response.data, isEditing: false } // Obnovíme data a ukončíme režim editace
+                        : article
+                )
+            );
+        } catch (error) {
+            console.error("Chyba při rušení změn:", error);
+        }
+    };
+
     if (loading) {
         return <p>Načítání článků...</p>;
     }
     return (
         <Container>
-            {articles.filter(article => article.visibility).map((article, index) => (
-                <div key={index} className="article-container mb-4">
-                    <Col className="article-header">
-                        {/* First Column: Date, Author, Title, Keywords stacked vertically */}
-                        <Row md={8}>
-                            <p className="article-date text-muted">{article.timestamp}</p>
-                            <p className="article-author">{article.author || 'Unknown Author'}</p>
-                            <h2>{article.title}</h2>
-                            <div className="article-keywords">
-                                {article.keywords ? article.keywords.map((keyword, index) => (
-                                    <span key={index} className="hashtag">#{keyword}</span>
-                                )) : 'No Keywords'}
-                            </div>
+            {articles.map((article) => ( // articles.filter(article => article.visibility).map((article, index) => (
+                <div key={article.id} className="article-container mb-4">
+                    {article.isEditing ? (
+                        <><Row>
+                            <Col className="article-header">
+                                <Row md={10}>
+                                    <Col>
+                                        <button
+                                            className="btn btn-primary"
+                                            onClick={() => handleVisibilityToggle(article.id)}
+                                        >
+                                            {article.visibility ? "Visible" : "Hidden"}
+                                        </button>
+                                        <p className="article-author">{article.author || 'Unknown Author'}</p>
+                                    </Col>
+                                    <Col>
+                                        <p className="article-date text-muted">{article.timestamp}</p>
+                                        <button>update time</button>
+                                    </Col>
+                                    <input
+                                        type="text"
+                                        value={article.title}
+                                        onChange={(e) => handleInputChange(article.id, "title", e.target.value)}
+                                        className="form-control mb-2"
+                                    />
+                                    <div className="article-keywords">
+                                        {article.keywords ? article.keywords.map((keyword) => (
+                                            <span key={keyword.id} className="hashtag">#{keyword}</span>
+                                        )) : 'Unknown Keywords'}
+                                    </div>
+                                    <button
+                                    ></button>
+                                </Row>
+                            </Col>
+
+                            <Col className='position-relative img-col'>
+                                <button
+                                    className="icon-button settings"
+                                    onClick={() => handleUpdateArticle(article.id, { ...article, isEditing: false })}
+                                >
+                                    <i className="fas fa-check"></i> {/* Settings icon */}
+                                </button>
+
+                                {/* Close Icon */}
+                                <button
+                                    className="icon-button close"
+                                    onClick={() => handleCancelEdit(article.id)}
+                                >
+                                    <i className="fas fa-times"></i> {/* Close icon */}
+                                </button>
+                                <Image
+                                    src={article.imageUrl}
+                                    alt={article.title}
+                                    fluid
+                                    className="article-image"  // Added class for image styling
+                                />
+                            </Col>
                         </Row>
+                            <Row className='article-content'>
+                                <textarea
+                                    value={article.content}
+                                    onChange={(e) => handleInputChange(article.id, "content", e.target.value)}
+                                    className="form-control mb-2"
+                                />
+                            </Row>
+                        </>
+                    ) : (
+                        <>
+                            <Row>
+                                <Col className="article-header">
+                                    {/* First Column: Date, Author, Title, Keywords stacked vertically */}
+                                    <Row md={10}>
+                                        <Col>
+                                            <span>{article.visibility ? 'visible' : 'hidden'}</span>
+                                        </Col>
+                                        <Col>
+                                            <p className="article-date text-muted">{article.timestamp}</p>
+                                        </Col>
+                                        <p className="article-author">{article.author || 'Unknown Author'}</p>
+                                        <h2>{article.title}</h2>
+                                        <div className="article-keywords">
+                                            {article.keywords ? article.keywords.map((keyword) => (
+                                                <span key={keyword.id} className="hashtag">#{keyword}</span>
+                                            )) : 'Unknown Keywords'}
+                                        </div>
+                                    </Row>
+                                </Col>
 
-                        {/* Second Column: Image */}
-                        <Col md={4} className='position-relative'>
-                            <button
-                                className="icon-button settings"
-                                onClick={() => handleSettings(article.id)}
-                            >
-                                <i className="fas fa-cog"></i> {/* Settings icon */}
-                            </button>
+                                <Col className='position-relative img-col'>
+                                    <button
+                                        className="icon-button settings"
+                                        onClick={() => handleSettings(article.id)}
+                                    >
+                                        <i className="fas fa-cog"></i> {/* Settings icon */}
+                                    </button>
 
-                            {/* Close Icon */}
-                            <button
-                                className="icon-button close"
-                                onClick={() => handleDelete(article.id)}
-                            >
-                                <i className="fas fa-times"></i> {/* Close icon */}
-                            </button>
-                            <Image
-                                src={article.imageUrl}
-                                alt={article.title}
-                                fluid
-                                className="article-image"  // Added class for image styling
-                            />
-                        </Col>
-                    </Col>
-
-                    {/* Article Content */}
-                    <Row>
-                        <Col md={12}>
-                            <p>{article.content}</p>
-                        </Col>
-                    </Row>
+                                    {/* Close Icon */}
+                                    <button
+                                        className="icon-button close"
+                                        onClick={() => handleDelete(article.id)}
+                                    >
+                                        <i className="fas fa-trash"></i> {/* Close icon */}
+                                    </button>
+                                    <Image
+                                        src={article.imageUrl}
+                                        alt={article.title}
+                                        fluid
+                                        className="article-image"  // Added class for image styling
+                                    />
+                                </Col>
+                            </Row>
+                            <Row className='article-content'>
+                                <p>{article.content}</p>
+                            </Row>
+                        </>
+                    )}
                 </div>
             ))}
         </Container>

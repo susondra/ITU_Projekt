@@ -29,8 +29,12 @@ async function loadArticles() {
         articles = []; // Initialize as an empty array if there is an error
     }
 }
-
 loadArticles();
+
+async function loadKeywords() {
+    const data = await fs.readFile(keywordsFilePath, 'utf8');
+    return JSON.parse(data);
+}
 
 app.get('/api/articles/user/:userName', async (req, res) => {
     const { userName } = req.params;
@@ -39,7 +43,7 @@ app.get('/api/articles/user/:userName', async (req, res) => {
         // Read users and articles from JSON files
         const usersData = await fs.readFile(usersFilePath, 'utf8');
         const users = JSON.parse(usersData);
-        loadArticles();
+
         const keywordsData = await fs.readFile(keywordsFilePath, 'utf8');
         const keywords = JSON.parse(keywordsData);
 
@@ -71,92 +75,152 @@ app.get('/api/articles/user/:userName', async (req, res) => {
     }
 });
 
-/*
-app.get('/api/articles', async (req, res) => {
-    const filePath = path.join(__dirname, 'articles.json');  // Path to articles.json
-
+app.get('/api/keywords', async (req, res) => {
     try {
-        // Read the articles.json file asynchronously
-        const data = await fs.readFile(filePath, 'utf8');
-
-        // Parse the data into a JavaScript object (array of articles)
-        const articles = JSON.parse(data);
-
-        const structuredArticles = articles.map((article) => ({
-            title: article.title,
-            content: article.content,
-            keywords: article.keywords,
-            visibility: article.isPublic, // assuming you want 'isPublic' as 'visibility'
-            timestamp: article.timestamp || new Date().toISOString(),  // Add timestamp if not already present
-        }));
-
-        // Send the articles as a JSON response
-        res.json(structuredArticles);
+        const keywordsData = await fs.readFile(keywordsFilePath, 'utf8');
+        const keywords = JSON.parse(keywordsData);
+        res.json(keywords);
     } catch (error) {
-        // If an error occurs (e.g., file not found or invalid JSON), return a 500 error
-        console.error('Error reading articles.json:', error);
-        res.status(500).json({ error: 'Failed to load articles' });
+        console.error('Error loading data:', error);
+        res.status(500).json({ message: 'Error loading data' });
     }
-});*/
+});
 
-// Hlavní routa pro získání seznamu článků
-/*app.get('/api/articles', async (req, res) => {
-    loadArticles();
-    res.json(articles);  // Odeslání článků do frontendové aplikace
-});*/
-
-/*
-app.post('/api/articles/addKeyword/:articleId', (req, res) => {
-    const { articleId } = req.params;
-    const { keywordId } = req.body;  // The keywordId to add
-
-    const article = articles.find(a => a.id === articleId);
-    if (article) {
-        article.keywords.push(keywordId);  // Add the keyword to the article
-        res.status(200).json({ message: 'Keyword added successfully', article });
-    } else {
-        res.status(404).json({ message: 'Article not found' });
-    }
-});*/
-
-app.post('/api/add', async (req, res) => {
-    const { id, author, title, content, keywords, visibility } = req.body;
-
-    // Create an article object to store the data
-    const article = {
-        id,
-        author,
-        title,
-        visibility,
-        keywords,
-        content,
-        timestamp: new Date().toISOString(), // Optional: add a timestamp
-    };
+app.put('/api/articles/:id', async (req, res) => {
+    const { id } = req.params;
+    const updatedArticle = req.body; // Nová data článku z těla požadavku
 
     try {
-        console.log('Reading file...');
-        // Read the current articles from the file asynchronously
-        let data = await fs.readFile(articlesFilePath, 'utf8');
+        // Načteme články
+        await loadArticles();
+        const keywords = await loadKeywords();
 
-        // If the file is empty, initialize an empty array
-        let articles = data ? JSON.parse(data) : [];
+        // Vytvoříme mapu klíčových slov pro snadnější přístup k ID 
+        const keywordMap = keywords.reduce((map, obj) => {
+            map[obj.name] = obj.id;
+            return map;
+        }, {});
 
-        console.log('Adding new article...');
-        // Add the new article to the array
-        articles.push(article);
+        // Aktualizujeme klíčová slova v článku, pokud jsou poskytnuta 
+        if (updatedArticle.keywords) {
+            updatedArticle.keywords = updatedArticle.keywords
+                .filter(keyword => keywordMap[keyword]) // Ponecháme pouze platná klíčová slova 
+                .map(keyword => keywordMap[keyword]); // Převedeme klíčová slova na jejich ID 
+        }
 
-        console.log('Writing to file...');
-        // Write the updated list of articles back to the file asynchronously
+        // Najdeme index článku podle ID
+        const articleIndex = articles.findIndex(article => article.id === parseInt(id));
+        if (articleIndex === -1) {
+            return res.status(404).json({ message: 'Článek nenalezen' });
+        }
+
+        // Aktualizujeme článek
+        articles[articleIndex] = { ...articles[articleIndex], ...updatedArticle };
+
+        // Uložíme změny zpět do JSON souboru
         await fs.writeFile(articlesFilePath, JSON.stringify(articles, null, 2), 'utf8');
 
-        // After writing the file, redirect to frontend
-        console.log('Redirecting...');
-        res.redirect('http://localhost:3000/');  // Redirect to frontend after success
+        res.json({
+            message: 'Článek byl úspěšně aktualizován',
+            article: articles[articleIndex],
+        });
+    } catch (error) {
+        console.error('Chyba při aktualizaci článku:', error);
+        res.status(500).json({ message: 'Chyba při aktualizaci článku' });
+    }
+});
 
-    } catch (err) {
-        // Handle errors for reading or writing the file
-        console.error(err);
-        res.status(500).json({ error: 'Failed to process the data' });
+app.patch('/api/articles/:id/isEditing', async (req, res) => {
+    const { id } = req.params; // ID článku z URL
+
+    try {
+        // Načteme články
+        await loadArticles();
+
+        // Najdeme článek podle ID
+        const article = articles.find(article => article.id === parseInt(id));
+        if (!article) {
+            return res.status(404).json({ message: 'Článek nenalezen' });
+        }
+
+        // Nastavíme isEditing na true
+        article.isEditing = true;
+
+        // Uložíme změny zpět do JSON souboru
+        await fs.writeFile(articlesFilePath, JSON.stringify(articles, null, 2), 'utf8');
+
+        res.json({
+            message: 'Režim úprav byl zapnut',
+            article, // Vracíme upravený článek
+        });
+    } catch (error) {
+        console.error('Chyba při zapínání režimu úprav:', error);
+        res.status(500).json({ message: 'Chyba při zapínání režimu úprav' });
+    }
+});
+
+app.post('/api/articles', async (req, res) => {
+    try {
+        // Načteme aktuální články
+        await loadArticles();
+
+        const { author } = req.body;
+
+        // Vytvoříme nové ID
+        const newId = articles.length > 0 ? Math.max(...articles.map(article => article.id)) + 1 : 1;
+
+        // Vytvoříme nový článek z dat, která přicházejí z klienta
+        const newArticle = {
+            id: newId,
+            author: author || 'Unknown Author',
+            title: '',
+            content: '',
+            keywords: [],
+            visibility: false,
+            isEditing: true,
+            timestamp: new Date().toISOString(),
+            imageUrl: '',
+        };
+
+        // Přidáme nový článek do seznamu
+        articles.push(newArticle);
+
+        // Uložíme změny zpět do souboru
+        await fs.writeFile(articlesFilePath, JSON.stringify(articles, null, 2), 'utf8');
+
+        res.status(201).json({
+            message: 'Nový článek byl vytvořen',
+            article: newArticle,
+        });
+    } catch (error) {
+        console.error('Chyba při vytváření nového článku:', error);
+        res.status(500).json({ message: 'Chyba při vytváření nového článku' });
+    }
+});
+
+app.get('/api/articles/:id/cancelEdit', async (req, res) => {
+    const { id } = req.params;
+
+    try {
+
+        await loadArticles();
+
+        // Najdeme článek podle ID
+        const articleIndex = articles.findIndex(article => article.id === parseInt(id));
+        if (articleIndex === -1) {
+            return res.status(404).json({ message: 'Článek nenalezen' });
+        }
+
+        // Změníme stav isEditing na false
+        articles[articleIndex].isEditing = false;
+
+        // Uložíme změny zpět do souboru
+        await fs.writeFile(articlesFilePath, JSON.stringify(articles, null, 2));
+
+        res.status(200).json({ message: 'Změny zrušeny' });
+    } catch (error) {
+        console.error('Chyba při rušení změn:', error);
+        res.status(500).json({ message: 'Chyba při rušení změn' });
     }
 });
 
@@ -164,7 +228,6 @@ app.delete('/api/articles/delete/:id', async (req, res) => {
     const { id } = req.params;  // Get the article id from the URL params
 
     try {
-        // Read the current articles from the file
 
         await loadArticles();
 

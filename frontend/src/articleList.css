@@ -24,10 +24,23 @@
     margin-bottom: 10px;
 }
 
-/* Date and Author styling */
+.visible {
+    color: white;
+}
+
+.hidden {
+    color: rgb(160, 160, 160);
+}
+
+.hashtag i.fas.fa-times {
+    color: rgb(255, 50, 50);
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+}
+
 .article-date {
-    font-size: 14px;
+    font-size: 20px;
     font-style: italic;
+    color: white;
 }
 
 .article-author {
@@ -56,19 +69,50 @@
     border-radius: 15px;
 }
 
-/* Styling for image */
-.article-image {
-    position: relative;
-    right: 0;
-    max-height: 250px;
-    object-fit: cover;
-    border-radius: 8px;
+.keyword-dropdown {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 10px;
+    z-index: 1000;
 }
+
+.keyword-item {
+    display: block;
+    padding: 5px 10px;
+    margin-bottom: 5px;
+    background-color: #f9f9f9;
+    border: none;
+    cursor: pointer;
+}
+
+.keyword-item:hover {
+    background-color: #e9e9e9;
+}
+
+
+.article-image {
+    height: auto;
+    border-radius: 8px;
+    max-width: 100%;
+}
+
 
 /* Adjust content styling */
 .article-content {
-    margin-top: 15px;
-    font-size: 16px;
+    word-wrap: break-word;
+    /* Zalomení dlouhých slov */
+    overflow-wrap: anywhere;
+    /* Podpora zalomení i u dlouhých nepřerušených řetězců */
+    height: auto;
+}
+
+p {
+    white-space: normal;
+    /* Zajistí, že text bude zalamován */
+    overflow: visible;
+    /* Umožní textu rozšířit kontejner */
+    text-overflow: clip;
 }
 
 .icon-button {
@@ -89,18 +133,23 @@
     z-index: 10;
     opacity: 0.8;
     /* Slightly transparent by default */
+    width: 40px;
+    height: auto;
+    border-radius: 50%;
+    background-color: rgb(65, 65, 65);
 }
 
 /* Settings Icon aligned to the left */
 .settings {
-    left: 10px;
+    left: 5%;
     /* Position settings icon to the left */
 }
 
 /* Close Icon aligned to the right */
 .close {
     color: #f00;
-    right: 10px;
+    right: 5%;
+
     /* Position close icon to the right */
 }
 
@@ -110,8 +159,29 @@
     /* Full opacity when hovered */
 }
 
+.fa-check {
+    color: rgb(0, 255, 0);
+}
+
+.fa-times,
+.fa-check {
+    font-size: larger;
+}
+
 /* For the image container */
 .position-relative {
     position: relative;
     /* Allow absolute positioning of icons inside this container */
+}
+
+.img-col {
+    display: flex;
+    align-items: center;
+    width: auto;
+}
+
+.on-right {
+    position: relative;
+    right: 0;
+
 }

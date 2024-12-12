@@ -46,11 +46,11 @@
 
 /* Add specific margin to left and right buttons */
 .User {
-    margin-left: 0;
+    margin-left: 3%;
 }
 
 .Add-article-button {
-    margin-right: 0;
+    margin-right: 3%;
 }
 
 /* Centered Title in the Header */
@@ -69,7 +69,5 @@
     background-color: #ddd;
 }
 
-/* For the main content section */
-main {
-    margin-top: 100px;
-}
+
+.container {}

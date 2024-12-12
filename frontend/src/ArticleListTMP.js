@@ -29,8 +29,6 @@ const ArticleList = ({ activeAuthor }) => {
         fetchArticles();  // Fetch articles on component mount
     }, [fetchArticles]);
 
-
-
     const handleSettings = async (id) => {
         try {
             const updatedSettings = { /* settings data */ };

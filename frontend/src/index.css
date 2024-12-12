@@ -18,8 +18,11 @@
 
 body {
   border-radius: 10px;
-  margin: 0 auto;
   overflow-x: hidden;
+}
+
+main {
+  margin-top: 100px;
 }
 
 code {

@@ -6,11 +6,10 @@ import { Link } from 'react-router-dom';
 
 function Add() {
     const [formData, setFormData] = useState({
-        id: 9,
         author: 'Red Angle',
         title: '',
         content: '',
-        visibility: true,
+        visibility: false,
         keywords: '',
     });
 
