@@ -1,22 +1,24 @@
-/* Ensure full-width container */
+/*
+autor: Ondřej Šustr (xsustro00)
+
+veškerý kód zde je pro definování podoby karet článků
+
+*/
+
 .article-container {
     background-color: #0066cc;
-    /* Blue background */
     color: white;
     padding: 20px;
     margin-bottom: 20px;
     border-radius: 8px;
 }
 
-/* Header with date, author, title */
 .article-header {
     margin-bottom: 20px;
     display: flex;
-    /* Align elements horizontally */
     justify-content: space-between;
 }
 
-/* First Column (stacked items: date, author, title, keywords) */
 .article-header .article-date,
 .article-header .article-author,
 .article-header h2,
@@ -25,10 +27,14 @@
 }
 
 .visible {
+    padding: 2px;
+    margin: 0;
     color: white;
 }
 
 .hidden {
+    padding: 2px;
+    margin: 0;
     color: rgb(190, 190, 190);
 }
 
@@ -42,6 +48,19 @@
     border: none;
     cursor: pointer;
     font-size: 20px;
+}
+
+.shown-keywords {
+    display: inline-block;
+    padding: 6px 12px;
+    margin: 4px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    text-align: center;
+    text-decoration: none;
+    cursor: default;
 }
 
 .fa-times,
@@ -60,6 +79,7 @@
 }
 
 .article-author {
+    margin-top: 10px;
     font-size: 16px;
     font-weight: bold;
 }
@@ -70,7 +90,6 @@
     margin-top: 10px;
 }
 
-/* Styling for hashtags */
 .article-keywords {
     font-size: 14px;
     margin-top: 10px;
@@ -80,7 +99,6 @@
     margin-right: 5px;
     color: #fff;
     background-color: #1774ca;
-    /* Blue background for hashtags */
     padding: 2px 8px;
     font-size: 16px;
     border-radius: 15px;
@@ -93,21 +111,24 @@
 }
 
 
-/* Adjust content styling */
 .article-content {
     word-wrap: break-word;
-    /* Zalomení dlouhých slov */
     overflow-wrap: anywhere;
-    /* Podpora zalomení i u dlouhých nepřerušených řetězců */
     height: auto;
 }
 
 p {
     white-space: normal;
-    /* Zajistí, že text bude zalamován */
     overflow: visible;
-    /* Umožní textu rozšířit kontejner */
     text-overflow: clip;
+}
+
+h5 {
+    padding: 0;
+}
+
+h1 {
+    text-transform: uppercase;
 }
 
 .icon-button {
@@ -180,23 +201,17 @@ i.fa-check {
 
 div.article-content {
     color: #ffffff;
-    /* Navy Blue - světlejší text */
     padding: 10px 15px;
-    /* Menší padding */
     margin-top: 10px;
     border-radius: 8px;
-    /* Menší mezera nad obsahem */
     font-size: 1rem;
 }
 
-/* Datum článku */
 .article-date {
     font-style: italic;
     color: #d2e3ee;
-    /* Aquamarine */
 }
 
-/* Obrázek přes celou šířku */
 .img-col img {
     width: 100%;
     height: auto;
@@ -205,7 +220,6 @@ div.article-content {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Klíčová slova */
 .article-keywords button {
     border: none;
     padding: 5px 10px;
@@ -217,9 +231,7 @@ div.article-content {
 
 .article-keywords button:hover {
     background-color: #003a64;
-    /* Navy Blue */
     color: #a9cee8;
-    /* Aquamarine */
 }
 
 
@@ -227,13 +239,11 @@ div.article-content {
 tabulka
 */
 
-/* Hide scrollbar */
 .keyword-dropdown {
     max-height: 10em;
     overflow-y: auto;
     padding: 10px;
     background-color: #b1d4e0;
-    /* Baby Blue */
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: absolute;
@@ -242,71 +252,61 @@ tabulka
     z-index: 90;
 }
 
-/* Customize scrollbar */
 .keyword-dropdown::-webkit-scrollbar {
     width: 5px;
-    /* Make the scrollbar narrower */
 }
 
 .keyword-dropdown::-webkit-scrollbar-track {
     background: transparent;
-    /* Transparent track */
 }
 
 .keyword-dropdown::-webkit-scrollbar-thumb {
     background-color: #2e8bc0;
-    /* Blue */
     border-radius: 10px;
-    /* Round corners for thumb */
 }
 
-/* Table without border */
 .keyword-table {
     width: 100%;
     border-collapse: collapse;
     background-color: #b1d4e0;
-    /* Baby Blue */
     border-radius: 8px;
     overflow: hidden;
 }
 
-/* Table rows */
 .keyword-table tr {
     display: flex;
     width: 100%;
 }
 
-/* Table cells */
 .keyword-table td {
     flex: 1;
     padding: 5px;
     text-align: center;
     border: none;
-    /* Remove border */
 }
 
-/* Keyword item button */
 .keyword-item {
     background-color: #145da0;
-    /* Midnight Blue */
     color: white;
     border: none;
     padding: 10px 20px;
-    /* Adjust padding for better appearance */
     margin: 5px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     font-size: 18px;
-    /* Match font size with buttons outside the table */
 }
 
 .keyword-item:hover {
     background-color: #0c2d48;
-    /* Dark Blue */
 }
 
-/* Special row style */
 .special-row td {
     border-bottom: 1px solid black;
-    /* Remove border */
+}
+
+.article-edit-img {
+    position: relative;
+    width: 100%;
+    min-height: 40vh;
+    margin-top: 40px;
 }

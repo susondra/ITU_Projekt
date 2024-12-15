@@ -6,5 +6,9 @@
     {
         "id": 2,
         "name": "Daily.News"
+    },
+    {
+        "id": 3,
+        "name": "Tester"
     }
 ]

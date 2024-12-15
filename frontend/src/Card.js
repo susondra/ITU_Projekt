@@ -3,20 +3,34 @@ import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { Image, Row, Col } from 'react-bootstrap';
 
-const getTopKeywords = (articles, count = 3) => {
+/*
+autor: Ondřej Šustr (xsustro00)
+
+dokument obsahuje strukturu komponenty karta článků
+několik funkcí, využívaných komponentou
+komponenta, přebírá spostu dat od rodiče, jelikož některé akce vyžadují aktualizaci dat i na vyšším komponentě
+
+*/
+
+const getTopKeywords = (articles, articleKeywords, count = 3) => {
     const keywordCounts = {};
 
     // Projdeme všechny články autora a spočítáme klíčová slova 
     articles.forEach(article => {
         article.keywords.forEach(keyword => {
-            keywordCounts[keyword] = (keywordCounts[keyword] || 0) + 1;
+            if (!articleKeywords.includes(keyword)) {
+                keywordCounts[keyword] = (keywordCounts[keyword] || 0) + 1;
+            }
         });
     });
+
     // Seřadíme klíčová slova podle počtu výskytů 
     const sortedKeywords = Object.entries(keywordCounts).sort((a, b) => b[1] - a[1]);
+
     // Vrátíme top klíčová slova 
     return sortedKeywords.slice(0, count).map(entry => ({ name: entry[0] }));
 };
+
 
 const sortKeywordsAlphabetically = (keywords) => {
     return keywords.sort((a, b) => a.name.localeCompare(b.name));
@@ -28,27 +42,32 @@ const Card = ({ article, articles, fetchArticles, handleVisibilityToggle, handle
 
     const [isEditing, setIsEditing] = useState(false);
     const [showKeywords, setShowKeywords] = useState(false);
+    const [topKeywords, setTopKeywords] = useState([]);
+
+
+    useEffect(() => {
+        setTopKeywords(getTopKeywords(articles, article.keywords));
+    }, [article.keywords, articles]);
 
     const filteredKeywords = availableKeywords.filter(
         keyword => !article.keywords.includes(keyword.name)
     );
 
-    const topKeywords = getTopKeywords(articles);
 
     const otherKeywords = sortKeywordsAlphabetically(
-        filteredKeywords.filter(keyword => !topKeywords.includes(keyword))
+        filteredKeywords.filter(keyword => !topKeywords.some(topKeyword => topKeyword.name === keyword.name))
     );
 
     useEffect(() => {
         if (article.id === newArticleId) {
             setIsEditing(true);
         }
-    }, [newArticleId]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [newArticleId]); // article.id je ignorováno
 
     const handleUpdateTimestamp = (id) => {
-        // Nastavíme nový timestamp na aktuální čas
         const newTimestamp = new Date().toISOString();
-        handleInputChange(id, 'timestamp', newTimestamp); // Aktualizujeme timestamp prostřednictvím handleInputChange
+        handleInputChange(id, 'timestamp', newTimestamp);
     };
 
     const formatDate = (timestamp) => {
@@ -89,28 +108,29 @@ const Card = ({ article, articles, fetchArticles, handleVisibilityToggle, handle
                                         setShowKeywords(false);
                                     }}
                                 >
-                                    <h5 className={article.visibility ? 'visible' : 'hidden'}>{article.visibility ? "Visible" : "Hidden"}</h5>
+                                    <h5 className={article.visibility ? 'visible' : 'hidden'}>{article.visibility ? "VISIBLE" : "HIDDEN"}</h5>
                                 </button>
                                 <h3 className="article-author">Author: {article.author || 'Unknown Author'}</h3>
                             </Col>
-                            <Col className='on-right'>
+                            <Col>
                                 <p className="article-date">Date: {formatDate(article.timestamp)}</p>
-                                <button onClick={() => {
-                                    handleUpdateTimestamp(article.id);
-                                    setShowKeywords(false);
-                                }}>update time</button>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={() => {
+                                        handleUpdateTimestamp(article.id);
+                                        setShowKeywords(false);
+                                    }}>update time</button>
                             </Col>
 
                             <div className="article-keywords">
                                 {article.keywords ? article.keywords.map((keyword, index) => (
                                     <button key={index} className="hashtag" onClick={() => {
                                         removeKeywordFromArticle(article.id, keyword);
-                                        setShowKeywords(false);
                                     }
                                     }>#{keyword} <i className="fas fa-times"></i></button>
                                 )) : 'Unknown Keywords'}
                                 {showKeywords ? (
-                                    <><button onClick={() => setShowKeywords(false)} className='hashtag' ><i className="fas fa-plus"></i>
+                                    <><button onClick={() => setShowKeywords(false)} className='hashtag' ><i className="fas fa-minus"></i>
                                     </button>
                                     </>
                                 ) : (
@@ -133,7 +153,6 @@ const Card = ({ article, articles, fetchArticles, handleVisibilityToggle, handle
                                                                 className="keyword-item hashtag"
                                                                 onClick={() => {
                                                                     addKeywordToArticle(article.id, keyword.name);
-                                                                    setShowKeywords(false);
                                                                 }}
                                                             >
                                                                 #{keyword.name}
@@ -151,7 +170,6 @@ const Card = ({ article, articles, fetchArticles, handleVisibilityToggle, handle
                                                                         className="keyword-item hashtag"
                                                                         onClick={() => {
                                                                             addKeywordToArticle(article.id, keyword.name);
-                                                                            setShowKeywords(false);
                                                                         }}
                                                                     >
                                                                         #{keyword.name}
@@ -163,7 +181,6 @@ const Card = ({ article, articles, fetchArticles, handleVisibilityToggle, handle
                                                                             className="keyword-item hashtag"
                                                                             onClick={() => {
                                                                                 addKeywordToArticle(article.id, otherKeywords[index + 1].name);
-                                                                                setShowKeywords(false);
                                                                             }}
                                                                         >
                                                                             #{otherKeywords[index + 1].name}
@@ -176,7 +193,6 @@ const Card = ({ article, articles, fetchArticles, handleVisibilityToggle, handle
                                                                             className="keyword-item hashtag"
                                                                             onClick={() => {
                                                                                 addKeywordToArticle(article.id, otherKeywords[index + 2].name);
-                                                                                setShowKeywords(false);
                                                                             }}
                                                                         >
                                                                             #{otherKeywords[index + 2].name}
@@ -198,39 +214,47 @@ const Card = ({ article, articles, fetchArticles, handleVisibilityToggle, handle
                     </Col>
 
                     <Col md={5} className='position-relative img-col'>
-                        <button
-                            className="icon-button settings"
-                            onClick={() => {
-                                handleUpdateArticle(article.id, { ...article });
-                                handleSaveClick();
-                            }}
-                        >
-                            <i className="fas fa-check"></i> {/* Settings icon */}
-                        </button>
-
-                        {/* Close Icon */}
-                        <button
-                            className="icon-button close"
-                            onClick={() => {
-                                console.log(newArticleId);
-                                if (article.id === newArticleId) {
-                                    handleDelete(article.id);
-                                } else {
-                                    handleCancelEdit(article.id);
-                                }
-                                handleSaveClick();
-                            }}
-                        >
-                            <i className="fas fa-times"></i> {/* Close icon */}
-                        </button>
-                        <div> <input
-                            type="text"
-                            value={article.imageUrl}
-                            onChange={(e) => {
-                                handleImageUrlChange(article.id, e.target.value);
-                                setShowKeywords(false);
-                            }}
-                            placeholder="Enter image URL" />
+                        <div className='article-controls'>
+                            <button
+                                className="icon-button settings"
+                                onClick={() => {
+                                    handleUpdateArticle(article.id, { ...article });
+                                    handleSaveClick();
+                                }}
+                            >
+                                <i className="fas fa-check"></i>
+                            </button>
+                            <button
+                                className="icon-button close"
+                                onClick={() => {
+                                    console.log(newArticleId);
+                                    if (article.id === newArticleId) {
+                                        handleDelete(article.id);
+                                    } else {
+                                        handleCancelEdit(article.id);
+                                    }
+                                    handleSaveClick();
+                                }}
+                            >
+                                <i className="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div className='article-edit-img'>
+                            <div className='url-input'><input
+                                type="text"
+                                value={article.imageUrl}
+                                onChange={(e) => {
+                                    handleImageUrlChange(article.id, e.target.value);
+                                    setShowKeywords(false);
+                                }}
+                                placeholder="Enter image URL" />
+                            </div>
+                            <Image
+                                src={article.imageUrl}
+                                alt={article.title}
+                                fluid
+                                className="article-image"
+                            />
                         </div>
                     </Col>
                 </Row>
@@ -250,11 +274,10 @@ const Card = ({ article, articles, fetchArticles, handleVisibilityToggle, handle
                 <>
                     <Row>
                         <Col className="article-header">
-                            {/* First Column: Date, Author, Title, Keywords stacked vertically */}
                             <Row md={10}>
                                 <h1>{article.title}</h1>
                                 <Col className={article.visibility ? 'visible' : 'hidden'}>
-                                    <h5>{article.visibility ? 'visible' : 'hidden'}</h5>
+                                    <h5>{article.visibility ? "VISIBLE" : "HIDDEN"}</h5>
                                 </Col>
                                 <Col className='on-right'>
                                     <p className="article-date">Date: {formatDate(article.timestamp)}</p>
@@ -263,7 +286,7 @@ const Card = ({ article, articles, fetchArticles, handleVisibilityToggle, handle
 
                                 <div className="article-keywords">
                                     {article.keywords ? article.keywords.map((keyword, index) => (
-                                        <span key={index} className="hashtag">#{keyword}</span>
+                                        <span key={index} className="hashtag shown-keywords">#{keyword}</span>
                                     )) : 'Unknown Keywords'}
                                 </div>
                             </Row>
@@ -277,23 +300,22 @@ const Card = ({ article, articles, fetchArticles, handleVisibilityToggle, handle
                                     fetchArticles();
                                 }}
                             >
-                                <i className="fas fa-cog"></i> {/* Settings icon */}
+                                <i className="fas fa-cog"></i>
                             </button>
 
-                            {/* Close Icon */}
                             <button
                                 className="icon-button close"
                                 onClick={() =>
                                     handleDelete(article.id)
                                 }
                             >
-                                <i className="fas fa-trash"></i> {/* Close icon */}
+                                <i className="fas fa-trash"></i>
                             </button>
                             <Image
                                 src={article.imageUrl}
                                 alt={article.title}
                                 fluid
-                                className="article-image"  // Added class for image styling
+                                className="article-image"
                             />
                         </Col>
                     </Row>
@@ -301,8 +323,9 @@ const Card = ({ article, articles, fetchArticles, handleVisibilityToggle, handle
                         <p>{article.content}</p>
                     </Row>
                 </>
-            )}
-        </div>)
+            )
+            }
+        </div >)
 
 };
 

@@ -1,0 +1,192 @@
+body {
+    position: relative;
+    background-color: #b1d4e0;
+    /* Baby Blue */
+    font-family: Arial, sans-serif;
+}
+
+main {
+    max-width: 1200px;
+    margin-top: 24vh;
+    min-height: 76vh;
+    margin-bottom: 8vh;
+}
+
+header {
+    position: fixed;
+    left: 0;
+    z-index: 98;
+}
+
+.App-header {
+    position: relative;
+    z-index: 100;
+    width: 100vw;
+    padding: 1vh 3vw 0 3vw;
+    background-color: #145da0;
+    /* Midnight Blue */
+    text-align: center;
+    color: white;
+    padding-bottom: 0.1vh;
+    margin-bottom: 0;
+}
+
+.App-header-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #145da0;
+}
+
+.App-header-text {
+    background-color: #145da0;
+}
+
+.App-header-title select,
+.App-header-title button {
+    background-color: #2e8bc0;
+    /* Blue */
+    border: none;
+    color: white;
+    padding: 10px;
+    font-size: 16px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.App-header-title select:focus,
+.App-header-title button:focus {
+    outline: none;
+}
+
+.header-controls {
+    transition: top 0.5s ease-in-out;
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-bottom: 1vh;
+    z-index: 95;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 1vh;
+}
+
+.App-title {
+    font-size: 2.5em;
+    margin: 0;
+}
+
+.Add-article-button {
+    background-color: #2e8bc0;
+    /* Blue */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 12px;
+}
+
+
+.User:hover,
+.Add-article-button:hover,
+.filter-button:hover {
+    background-color: #50a6d8;
+}
+
+.Container {
+    padding: 20px;
+}
+
+
+input[type="text"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border: 1px solid #0c2d48;
+    /* Dark Blue */
+    border-radius: 4px;
+}
+
+textarea {
+    height: 100px;
+}
+
+/**/
+
+
+.header-controls span,
+.header-controls input,
+.header-controls button {
+    margin: 0 5px;
+    /* Přidá mezery kolem každého prvku */
+}
+
+.filter-button {
+    background-color: #2e8bc0;
+    /* Blue */
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.filter {
+    background-color: #2e8bc0;
+    /* Blue */
+    border: none;
+    color: white;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
+
+.filter-button i {
+    margin-left: 5px;
+}
+
+.filter-button:hover {
+    background-color: #145da0;
+    /* Midnight Blue */
+}
+
+.date-input {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+.search-button {
+    background-color: #2e8bc0;
+    /* Blue */
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.search-button:hover {
+    background-color: #145da0;
+    /* Midnight Blue */
+}
+
+.search-button .fas {
+    font-size: 1em;
+}
+
+.filter-button i {
+    margin-left: 5px;
+}
+
+/**/

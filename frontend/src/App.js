@@ -1,9 +1,16 @@
 import './app.css';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import Card from './Card.js';
-/*import Card from 'react-bootstrap/Card';*/
 import { Container } from 'react-bootstrap';
+
+/*
+autor: Ondřej Šustr (xsustro00)
+
+hlavní dokument aplikace
+struktura aplikace se nachází zde (+ volání Card, nižší komponenta)
+
+*/
 
 function App() {
     const [activeAuthor, setActiveAuthor] = useState('Red Angle');
@@ -16,6 +23,7 @@ function App() {
     const [sortOrder, setSortOrder] = useState('desc');
     const [dateFrom, setDateFrom] = useState(false);
     const [dateTo, setDateTo] = useState(false);
+    const headerControlsRef = useRef(null);
 
 
     const fetchArticles = useCallback(async () => {
@@ -30,10 +38,10 @@ function App() {
             setArticles(sortedArticles);
             setFilteredArticles(sortedArticles);
             fetchKeywords();
-            setLoading(false);  // Data loaded, set loading to false
+            setLoading(false);
         } catch (error) {
             console.error("Chyba při načítání článků:", error);
-            setLoading(false);  // Error loading data, set loading to false
+            setLoading(false);
         }
     }, [activeAuthor, sortOrder]);
 
@@ -43,7 +51,7 @@ function App() {
 
     const fetchKeywords = async () => {
         try {
-            const response = await axios.get(`http://localhost:5000/api/keywords`); // Váš endpoint pro získání klíčových slov
+            const response = await axios.get(`http://localhost:5000/api/keywords`); // Endpoint pro získání klíčových slov
             setAvailableKeywords(response.data);
         } catch (error) {
             console.error('Error fetching keywords:', error);
@@ -123,7 +131,6 @@ function App() {
     };
 
     const handleAuthorChange = (e) => {
-        //setShowKeywordsAll(false); dodelat
         setActiveAuthor(e.target.value);
     };
 
@@ -200,31 +207,45 @@ function App() {
                 console.log('Nový článek vytvořen:', response.data);
                 setNewArticleId(response.data.article.id);
                 setEditingActive(true);
-                fetchArticles(); // Znovu načteme články, aby se nový článek objevil v seznamu
+                setSortOrder('desc');
+                fetchArticles();
             } catch (error) {
                 console.error('Chyba při vytváření nového článku:', error);
             }
         }
     };
 
+
     useEffect(() => {
         let lastScrollTop = 0;
-        const headerControls = document.querySelector('.header-controls');
-        const onScroll = () => {
-            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            if (scrollTop > lastScrollTop) {
-                headerControls.style.top = '-60px';
+
+        const checkHeaderControls = () => {
+            if (headerControlsRef.current) {
+                const onScroll = () => {
+                    let scrollTop = window.scrollY || document.documentElement.scrollTop;
+                    if (scrollTop > lastScrollTop) {
+                        headerControlsRef.current.style.top = '-60px';
+                        console.log('Scrolling down');
+                    } else {
+                        headerControlsRef.current.style.top = '0px';
+                        console.log('Scrolling up');
+                    }
+                    lastScrollTop = scrollTop;
+                };
+
+                window.addEventListener('scroll', onScroll);
+
+                return () => {
+                    window.removeEventListener('scroll', onScroll);
+                };
             } else {
-                headerControls.style.top = '0';
-            } lastScrollTop = scrollTop;
+                setTimeout(checkHeaderControls, 100); // Znovu zkontrolovat po 100 ms
+            }
         };
-        window.addEventListener('scroll', onScroll);
-        return () => {
-            window.removeEventListener('scroll', onScroll);
-        };
+
+        checkHeaderControls();
     }, []);
 
-    const authorArticles = articles.filter(article => article.author === activeAuthor);
 
     if (loading) {
         return <p>Načítání článků...</p>;
@@ -237,15 +258,16 @@ function App() {
                         <select onChange={handleAuthorChange} value={activeAuthor}>
                             <option value="Red Angle">Red Angle</option>
                             <option value="Daily.News">Daily.News</option>
+                            <option value="Tester">Tester</option>
                         </select>
-                        <h1 className="App-title">FreshNews</h1>  {/* Název stránky */}
+                        <h1 className="App-title">FreshNews</h1>
                         <button className="Add-article-button" onClick={handleNewPost}><h4>New Post</h4></button>
                     </div>
                     <div className='App-header-text'>
                         <h2>My Articles</h2>
                     </div>
                 </div>
-                <div className='header-controls'>
+                <div className='header-controls' ref={headerControlsRef}>
                     <button className="filter-button" onClick={toggleSortOrder}>
                         By time <i className={sortOrder === 'desc' ? 'fas fa-arrow-down' : 'fas fa-arrow-up'}></i>
                     </button>
@@ -290,7 +312,6 @@ function App() {
                             startEditing={startEditing}
                             stopEditing={stopEditing}
                             newArticleId={newArticleId}
-                            authorArticles={authorArticles}
                         />
                     ))
                     }

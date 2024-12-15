@@ -1,3 +1,10 @@
+/*
+autor: Ondřej Šustr (xsustro00)
+
+veškerý kód zde je pro definování podoby aplikace (header, a vrcholná struktura seznamu "My articles")
+
+*/
+
 body {
     position: relative;
     background-color: #b1d4e0;
@@ -6,6 +13,7 @@ body {
 }
 
 main {
+    max-width: 1200px;
     margin-top: 24vh;
     min-height: 76vh;
     margin-bottom: 8vh;
