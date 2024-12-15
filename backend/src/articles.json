@@ -3,28 +3,31 @@
     "id": 1,
     "author": "Red Angle",
     "title": "Spolupráce",
-    "visibility": true,
+    "visibility": false,
     "keywords": [
       "1",
       "2"
     ],
     "content": "sadsadlihaisudushdiasidhiashdiasjdijsaidisd\n        dusadgasudu",
-    "isEditing": false,
     "timestamp": "2024-11-10T00:10:49.205Z",
     "imageUrl": "https://www.gainesville.com/gcdn/authoring/2011/08/28/NTGS/ghows-LK-b9a5a404-b0f2-4e79-a7ac-7ce56c9f13a4-aa950d0f.jpeg?width=660&height=495&fit=crop&format=pjpg&auto=webp"
   },
   {
     "id": 2,
     "author": "Red Angle",
-    "title": "dsadsad sad",
-    "visibility": true,
+    "title": "dsadsad s",
+    "visibility": false,
     "keywords": [
+      "6",
+      "14",
+      "13",
+      "5",
       "1"
     ],
     "content": "sadsad",
-    "isEditing": false,
-    "timestamp": "2024-12-12T19:57:02.956Z",
-    "imageUrl": "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459_1280.png"
+    "timestamp": "2024-12-14T19:30:48.509Z",
+    "imageUrl": "https://cdn.pixabay.com/photo/2013/07/12/17/47/test-pattern-152459_1280.png",
+    "isEditing": false
   },
   {
     "id": 3,
@@ -36,7 +39,6 @@
       "4"
     ],
     "content": "sadsad",
-    "isEditing": false,
     "timestamp": "2024-11-10T00:17:07.189Z",
     "imageUrl": "https://www.gainesville.com/gcdn/authoring/2011/08/28/NTGS/ghows-LK-b9a5a404-b0f2-4e79-a7ac-7ce56c9f13a4-aa950d0f.jpeg?width=660&height=495&fit=crop&format=pjpg&auto=webp"
   },
@@ -46,11 +48,9 @@
     "title": "dsadsad sad ",
     "visibility": true,
     "keywords": [
-      "1",
-      "30"
+      "1"
     ],
     "content": "sadsad",
-    "isEditing": false,
     "timestamp": "2024-11-10T00:25:58.682Z",
     "imageUrl": "https://example.com/default-image.jpg"
   },
@@ -64,8 +64,7 @@
       "3"
     ],
     "content": "",
-    "isEditing": false,
-    "timestamp": "2024-11-11T07:34:08.472Z",
+    "timestamp": "2024-12-14T11:38:49.101Z",
     "imageUrl": ""
   },
   {
@@ -78,23 +77,8 @@
       "3"
     ],
     "content": "",
-    "isEditing": false,
     "timestamp": "2024-11-11T07:34:08.472Z",
     "imageUrl": ""
-  },
-  {
-    "id": 7,
-    "author": "Red Angle",
-    "title": "giga",
-    "visibility": false,
-    "keywords": [
-      "3",
-      "4"
-    ],
-    "content": "haihdashdiagsydiuahdij",
-    "isEditing": false,
-    "timestamp": "2024-12-10T22:09:06.043Z",
-    "imageUrl": "sadsad"
   },
   {
     "id": 8,
@@ -103,22 +87,11 @@
     "visibility": true,
     "keywords": [
       "1",
-      "2"
+      "2",
+      "7"
     ],
     "content": "aaaaaaaaaaaaaaaaaaaa",
-    "isEditing": false,
     "timestamp": "2024-12-12T12:37:44.140Z",
-    "imageUrl": ""
-  },
-  {
-    "id": 9,
-    "author": "Red Angle",
-    "title": "giga bad",
-    "visibility": true,
-    "keywords": [],
-    "content": "haihdashdiagsydiuahdijsaddsadsadasdasdsadsadsadasdsadasda \n sd",
-    "isEditing": false,
-    "timestamp": "2024-12-10T22:09:06.043Z",
     "imageUrl": ""
   }
 ]

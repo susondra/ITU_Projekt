@@ -1,34 +1,41 @@
-import './index.css';
 import './app.css';
-import './articleList.css';
 import React, { useState, useEffect, useCallback } from 'react';
-import { format } from 'date-fns';
 import axios from 'axios';
+import Card from './Card.js';
 /*import Card from 'react-bootstrap/Card';*/
-import { Container, Row, Col, Image } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 
 function App() {
     const [activeAuthor, setActiveAuthor] = useState('Red Angle');
+    const [newArticleId, setNewArticleId] = useState([0]);
     const [articles, setArticles] = useState([]);
+    const [filteredArticles, setFilteredArticles] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [showKeywords, setShowKeywords] = useState(false);
     const [availableKeywords, setAvailableKeywords] = React.useState([]);
+    const [editingActive, setEditingActive] = useState(false);
+    const [sortOrder, setSortOrder] = useState('desc');
+    const [dateFrom, setDateFrom] = useState(false);
+    const [dateTo, setDateTo] = useState(false);
+
 
     const fetchArticles = useCallback(async () => {
         try {
             const response = await axios.get(`http://localhost:5000/api/articles/user/${activeAuthor}`);
             console.log("Načítaná data:", response.data);
 
-            const sortedArticles = response.data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
+            let sortedArticles = response.data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            if (sortOrder === 'asc') {
+                sortedArticles = sortedArticles.reverse();
+            }
             setArticles(sortedArticles);
+            setFilteredArticles(sortedArticles);
             fetchKeywords();
             setLoading(false);  // Data loaded, set loading to false
         } catch (error) {
             console.error("Chyba při načítání článků:", error);
             setLoading(false);  // Error loading data, set loading to false
         }
-    }, [activeAuthor]);
+    }, [activeAuthor, sortOrder]);
 
     useEffect(() => {
         fetchArticles();
@@ -44,7 +51,7 @@ function App() {
     };
 
     const addKeywordToArticle = (id, keyword) => {
-        setArticles((prevArticles) => prevArticles.map((article) => {
+        setFilteredArticles((prevArticles) => prevArticles.map((article) => {
             if (article.id === id) {
                 const updatedKeywords = article.keywords.includes(keyword) ? article.keywords : [...article.keywords, keyword];
                 return { ...article, keywords: updatedKeywords };
@@ -53,7 +60,7 @@ function App() {
     };
 
     const removeKeywordFromArticle = (id, keyword) => {
-        setArticles((prevArticles) =>
+        setFilteredArticles((prevArticles) =>
             prevArticles.map((article) => {
                 if (article.id === id) {
                     const updatedKeywords = article.keywords.filter(kw => kw !== keyword);
@@ -64,79 +71,108 @@ function App() {
         );
     };
 
+    const toggleSortOrder = () => {
+        setSortOrder((prevOrder) => (prevOrder === 'desc' ? 'asc' : 'desc'));
+    };
+
+    const handleDateFilter = async () => {
+        const filteredArticles = articles.filter(article => {
+            const articleDate = new Date(article.timestamp);
+            const from = dateFrom ? new Date(dateFrom) : new Date('1970-01-01');
+            const to = dateTo ? new Date(dateTo) : new Date();
+            return articleDate >= from && articleDate <= to;
+        });
+        setFilteredArticles(filteredArticles);
+    };
+
+    const handleCleanFilter = async () => {
+        setDateFrom('');
+        setDateTo('');
+        fetchArticles();
+    }
+
+    const startEditing = (articleId) => {
+        if (editingActive) {
+            alert('Prvně ukončete úpravu předchozího článku, než budete upravovat nový.');
+            return false;
+        } else {
+            setEditingActive(articleId);
+            return true;
+        }
+    };
+
+    const newPost = () => {
+        if (editingActive) {
+            alert('Prvně ukončete úpravu předchozího článku, než vytvoříte nový.');
+            return false;
+        } else {
+            return true;
+        }
+    };
+
+    const stopEditing = () => {
+        setEditingActive(false);
+    };
+
     const handleInputChange = (id, field, value) => {
-        setArticles((prevArticles) =>
+        setFilteredArticles((prevArticles) =>
             prevArticles.map((article) =>
                 article.id === id ? { ...article, [field]: value } : article
             )
         );
     };
 
-    const handleUpdateTimestamp = (id) => {
-        // Nastavíme nový timestamp na aktuální čas
-        const newTimestamp = new Date().toISOString();
-        handleInputChange(id, 'timestamp', newTimestamp); // Aktualizujeme timestamp prostřednictvím handleInputChange
-        setShowKeywords(false);
-    };
-
-
     const handleAuthorChange = (e) => {
+        //setShowKeywordsAll(false); dodelat
         setActiveAuthor(e.target.value);
-        setShowKeywords(false);
     };
 
-    const formatDate = (timestamp) => {
-        const date = new Date(timestamp);
-        return format(date, 'dd.MM. HH:mm');
-    };
 
     const handleVisibilityToggle = (id) => {
-        setArticles((prevArticles) =>
+        setFilteredArticles((prevArticles) =>
             prevArticles.map((article) =>
                 article.id === id ? { ...article, visibility: !article.visibility } : article
             )
         );
-        setShowKeywords(false);
+
     };
 
     const handleImageUrlChange = (id, newUrl) => {
-        setArticles((prevArticles) => prevArticles
+        setFilteredArticles((prevArticles) => prevArticles
             .map((article) => (article.id === id ? { ...article, imageUrl: newUrl } : article))
         );
     };
+
     const handleUpdateArticle = async (articleId, updatedData) => {
         try {
             const response = await axios.put(`http://localhost:5000/api/articles/${articleId}`, updatedData);
             console.log("Článek aktualizován:", response.data);
             console.log(response.data);
+            if (newArticleId !== 0) {
+                setNewArticleId(0);
+            }
             fetchArticles();
-            setShowKeywords(false);
         } catch (error) {
             console.error("Chyba při aktualizaci článku:", error);
         }
     };
 
-    const handleSettings = async (id) => {
-        try {
-            const response = await axios.patch(`http://localhost:5000/api/articles/${id}/isEditing`);
-            console.log('Stav isEditing aktualizován:', response.data);
-            fetchArticles(); // Načíst články znovu, abychom zobrazili změny
-            setShowKeywords(false);
-        } catch (error) {
-            console.error("Chyba při změně isEditing", error);
-        }
-    };
-
-
     const handleDelete = async (id) => {
-        try {
-            const response = await axios.delete(`http://localhost:5000/api/articles/delete/${id}`);
-            console.log(response.data);
-            fetchArticles();
-            setShowKeywords(false);
-        } catch (error) {
-            console.error("Error deleting article", error);
-            fetchArticles();
+        if (editingActive && newArticleId !== id) {
+            alert('Prvně ukončete úpravu článku.');
+        } else {
+            try {
+
+                const response = await axios.delete(`http://localhost:5000/api/articles/delete/${id}`);
+                console.log(response.data);
+                if (newArticleId !== 0) {
+                    setNewArticleId(0);
+                }
+                fetchArticles();
+            } catch (error) {
+                console.error("Error deleting article", error);
+                fetchArticles();
+            }
         }
     };
 
@@ -144,191 +180,118 @@ function App() {
         try {
             const response = await axios.get(`http://localhost:5000/api/articles/${id}/cancelEdit`);
             console.log(response.data);
+            if (newArticleId !== 0) {
+                setNewArticleId(0);
+            }
             fetchArticles();
-            setShowKeywords(false);
         } catch (error) {
             console.error("Chyba při rušení změn:", error);
         }
     };
 
     const handleNewPost = async () => {
-        try {
-            const newArticle = {
-                author: activeAuthor,
-            };
+        if (newPost()) {
+            try {
+                const newArticle = {
+                    author: activeAuthor,
+                };
 
-            const response = await axios.post('http://localhost:5000/api/articles', newArticle);
-            console.log('Nový článek vytvořen:', response.data);
-
-            fetchArticles(); // Znovu načteme články, aby se nový článek objevil v seznamu
-            setShowKeywords(false);
-        } catch (error) {
-            console.error('Chyba při vytváření nového článku:', error);
+                const response = await axios.post('http://localhost:5000/api/articles', newArticle);
+                console.log('Nový článek vytvořen:', response.data);
+                setNewArticleId(response.data.article.id);
+                setEditingActive(true);
+                fetchArticles(); // Znovu načteme články, aby se nový článek objevil v seznamu
+            } catch (error) {
+                console.error('Chyba při vytváření nového článku:', error);
+            }
         }
     };
+
+    useEffect(() => {
+        let lastScrollTop = 0;
+        const headerControls = document.querySelector('.header-controls');
+        const onScroll = () => {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop) {
+                headerControls.style.top = '-60px';
+            } else {
+                headerControls.style.top = '0';
+            } lastScrollTop = scrollTop;
+        };
+        window.addEventListener('scroll', onScroll);
+        return () => {
+            window.removeEventListener('scroll', onScroll);
+        };
+    }, []);
+
+    const authorArticles = articles.filter(article => article.author === activeAuthor);
 
     if (loading) {
         return <p>Načítání článků...</p>;
     }
     return (
         <div className="body">
-            <header className="App-header">
-                <div className='App-header-title'>
-                    <select onChange={handleAuthorChange} value={activeAuthor}>
-                        <option value="Red Angle">Red Angle</option>
-                        <option value="Daily.News">Daily.News</option>
-                    </select>
-                    <h1 className="App-title">FreshNews</h1>  {/* Název stránky */}
-                    <button className="Add-article-button" onClick={handleNewPost}>New Post</button>
+            <header>
+                <div className='App-header'>
+                    <div className='App-header-title'>
+                        <select onChange={handleAuthorChange} value={activeAuthor}>
+                            <option value="Red Angle">Red Angle</option>
+                            <option value="Daily.News">Daily.News</option>
+                        </select>
+                        <h1 className="App-title">FreshNews</h1>  {/* Název stránky */}
+                        <button className="Add-article-button" onClick={handleNewPost}><h4>New Post</h4></button>
+                    </div>
+                    <div className='App-header-text'>
+                        <h2>My Articles</h2>
+                    </div>
                 </div>
-                <div className='App-header-text'>
-                    <h1>My Articles</h1>
+                <div className='header-controls'>
+                    <button className="filter-button" onClick={toggleSortOrder}>
+                        By time <i className={sortOrder === 'desc' ? 'fas fa-arrow-down' : 'fas fa-arrow-up'}></i>
+                    </button>
+                    <div className='filter'>
+                        <span>od </span><input
+                            type="date"
+                            className="date-input"
+                            value={dateFrom}
+                            onChange={(e) => setDateFrom(e.target.value)} />
+                        <span>do </span><input
+                            type="date"
+                            className="date-input"
+                            value={dateTo}
+                            onChange={(e) => setDateTo(e.target.value)} />
+                        <button className="search-button" onClick={handleDateFilter}>
+                            <i className="fas fa-search"></i>
+                        </button>
+                        <button className="search-button" onClick={handleCleanFilter}>
+                            Clean filter
+                        </button>
+                    </div>
                 </div>
             </header>
             <main>
                 <Container>
-                    {articles.map((article) => ( // articles.filter(article => article.visibility).map((article, index) => (
-                        //<CARD.js/>
-                        <div key={article.id} className="article-container mb-4">
-                            {article.isEditing ? (
-                                <><Row>
-                                    <Col className="article-header">
-                                        <Row md={10}>
-                                            <Col>
-                                                <button
-                                                    className="btn btn-primary"
-                                                    onClick={() => handleVisibilityToggle(article.id)}
-                                                >
-                                                    <h5>{article.visibility ? "Visible" : "Hidden"}</h5>
-                                                </button>
-                                                <h3 className="article-author">{article.author || 'Unknown Author'}</h3>
-                                            </Col>
-                                            <Col className='on-right'>
-                                                <p className="article-date">{formatDate(article.timestamp)}</p>
-                                                <button onClick={() => handleUpdateTimestamp(article.id)}>update time</button>
-                                            </Col>
-                                            <input
-                                                type="text"
-                                                value={article.title}
-                                                onChange={(e) => handleInputChange(article.id, "title", e.target.value)}
-                                                className="form-control mb-2"
-                                                placeholder="Enter article title"
-                                            />
-                                            <div className="article-keywords">
-                                                {article.keywords ? article.keywords.map((keyword, index) => (
-                                                    <button key={index} className="hashtag" onClick={() => removeKeywordFromArticle(article.id, keyword)
-                                                    }>#{keyword} <i className="fas fa-times"></i></button>
-                                                )) : 'Unknown Keywords'}
-                                                {showKeywords ? (
-                                                    <><button onClick={() => setShowKeywords(false)} className='hashtag' ><i className="fas fa-plus"></i>
-                                                    </button>
-                                                    </>
-                                                ) : (
-                                                    <><button onClick={() => {
-                                                        fetchKeywords();
-                                                        setShowKeywords(true);
-                                                    }} className='hashtag' ><i className="fas fa-plus"></i>
-                                                    </button>
-                                                    </>
-                                                )}
-                                                {showKeywords && (
-                                                    <div className="keyword-dropdown">
-                                                        {availableKeywords.map(keyword => (
-                                                            <button
-                                                                key={keyword.id}
-                                                                className="keyword-item"
-                                                                onClick={() => addKeywordToArticle(article.id, keyword.name)} > {keyword.name}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </Row>
-                                    </Col>
-
-                                    <Col md={5} className='position-relative img-col'>
-                                        <button
-                                            className="icon-button settings"
-                                            onClick={() => handleUpdateArticle(article.id, { ...article, isEditing: false })}
-                                        >
-                                            <i className="fas fa-check"></i> {/* Settings icon */}
-                                        </button>
-
-                                        {/* Close Icon */}
-                                        <button
-                                            className="icon-button close"
-                                            onClick={() => handleCancelEdit(article.id)}
-                                        >
-                                            <i className="fas fa-times"></i> {/* Close icon */}
-                                        </button>
-                                        <div> <input
-                                            type="text"
-                                            value={article.imageUrl}
-                                            onChange={(e) => handleImageUrlChange(article.id, e.target.value)}
-                                            placeholder="Enter image URL" />
-                                        </div>
-                                    </Col>
-                                </Row>
-                                    <Row className='article-content'>
-                                        <textarea
-                                            value={article.content}
-                                            onChange={(e) => handleInputChange(article.id, "content", e.target.value)}
-                                            className="form-control mb-2"
-                                            placeholder="Enter article content"
-                                        />
-                                    </Row>
-                                </>
-                            ) : (
-                                <>
-                                    <Row>
-                                        <Col className="article-header">
-                                            {/* First Column: Date, Author, Title, Keywords stacked vertically */}
-                                            <Row md={10}>
-                                                <Col className={article.visibility ? 'visible' : 'hidden'}>
-                                                    <h5>{article.visibility ? 'visible' : 'hidden'}</h5>
-                                                </Col>
-                                                <Col className='on-right'>
-                                                    <p className="article-date">{formatDate(article.timestamp)}</p>
-                                                </Col>
-                                                <h3 className="article-author">{article.author || 'Unknown Author'}</h3>
-                                                <h2>{article.title}</h2>
-                                                <div className="article-keywords">
-                                                    {article.keywords ? article.keywords.map((keyword, index) => (
-                                                        <span key={index} className="hashtag">#{keyword}</span>
-                                                    )) : 'Unknown Keywords'}
-                                                </div>
-                                            </Row>
-                                        </Col>
-
-                                        <Col md={5} className='position-relative img-col'>
-                                            <button
-                                                className="icon-button settings"
-                                                onClick={() => handleSettings(article.id)}
-                                            >
-                                                <i className="fas fa-cog"></i> {/* Settings icon */}
-                                            </button>
-
-                                            {/* Close Icon */}
-                                            <button
-                                                className="icon-button close"
-                                                onClick={() => handleDelete(article.id)}
-                                            >
-                                                <i className="fas fa-trash"></i> {/* Close icon */}
-                                            </button>
-                                            <Image
-                                                src={article.imageUrl}
-                                                alt={article.title}
-                                                fluid
-                                                className="article-image"  // Added class for image styling
-                                            />
-                                        </Col>
-                                    </Row>
-                                    <Row className='article-content'>
-                                        <p>{article.content}</p>
-                                    </Row>
-                                </>
-                            )}
-                        </div>
+                    {filteredArticles.map((article) => (
+                        <Card
+                            key={article.id}
+                            article={article}
+                            articles={articles}
+                            fetchArticles={fetchArticles}
+                            handleVisibilityToggle={handleVisibilityToggle}
+                            handleInputChange={handleInputChange}
+                            removeKeywordFromArticle={removeKeywordFromArticle}
+                            availableKeywords={availableKeywords}
+                            fetchKeywords={fetchKeywords}
+                            addKeywordToArticle={addKeywordToArticle}
+                            handleUpdateArticle={handleUpdateArticle}
+                            handleDelete={handleDelete}
+                            handleCancelEdit={handleCancelEdit}
+                            handleImageUrlChange={handleImageUrlChange}
+                            startEditing={startEditing}
+                            stopEditing={stopEditing}
+                            newArticleId={newArticleId}
+                            authorArticles={authorArticles}
+                        />
                     ))
                     }
                 </Container >

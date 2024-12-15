@@ -177,7 +177,6 @@ app.post('/api/articles', async (req, res) => {
             content: '',
             keywords: [],
             visibility: false,
-            isEditing: true,
             timestamp: new Date().toISOString(),
             imageUrl: '',
         };
